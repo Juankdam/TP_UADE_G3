@@ -21,10 +21,12 @@ PRECIO_ARTICULO_2 = 18
 CANTIDAD_ARTICULO_2 = 19
 PRECIO_ARTICULO_3 = 20
 CANTIDAD_ARTICULO_3 = 21
-PROSPECTOS=1
-ERROR_NO_ES_NUMERO_PRECIO="Revisar valor del precio ingresado, no es un numero"
-
-#Declaración matriz rectangular
+NULO= 0
+COSTO_PORCENTAJE= 0.5
+PROSPECTOS = 1
+CANTIDAD_ARTICULOS=3
+ERROR_NO_ES_NUMERO_PRECIO = "ERROR 1:Revisar valor del precio ingresado, no es un numero"
+# Declaración matriz rectangular
 Datos_de_Venta = [
     ["Nombre", "Apellido", "Cargo", "Empresa", "Ciudad", "Dirección", "Origen del Contacto", "Última vez Contactado", "Método de Contacto", "Creado (Fecha)", "Teléfono", "Mail", "Estado (Lead)", "Tipo", "Descripción", "Observaciones", "Precio Artículo 1", "Cantidad Artículo 1", "Precio Artículo 2", "Cantidad Artículo 2", "Precio Artículo 3", "Cantidad Artículo 3"],
     ["Juan", "Pérez", "Gerente", "Tech Solutions", "Madrid", "Calle Falsa 123", "Referido", "19/3/2024", "Email", "20/8/2024", "6,1E+08", "juan.perez@email.com", "Nuevo", "Cliente", "servicios", "semana", "100€", "5", "150€", "3", "200€", "2"],
@@ -36,36 +38,72 @@ Datos_de_Venta = [
     ["Javier", "Ruiz", "Desarrollador", "Innovations", "Zaragoza", "Av. del Pilar 123", "Referido", "28/8/2024", "Llamada", "21/8/2024", "6,1E+08", "javier.ruiz@email.com", "Nuevo", "Cliente", "campaña en curso", "Revisar resultados", "100€", "3", "150€", "1", "200€", "1"],
     ["Patricia", "Morales", "Gerente", "Marketing Pro", "Murcia", "Calle Sol 456", "Referido", "4/9/2024", "Llamada", "24/8/2024", "6,1E+08", "patricia.morales@email.com", "seguimiento", "Cliente", "Revisión de contrato", "Enviar documentos", "100€", "1", "150€", "0", "200€", "0"]
 ]
-#Creamos la lista manualmente simulando ser un archivo.
+ 
+# Detectamos tamaño fila y columna:
+filas = len(Datos_de_Venta)
+columnas = len(Datos_de_Venta[0])
+iterable_prospectos=range(PROSPECTOS,filas)
+# Declaramos variables a usar
+prospecto = PROSPECTOS
+ingresos_totales= NULO
+costos_totales= NULO
+lista_articulos = []
+total_por_prospectos = []
+total_articulos_por_prospecto = []
 
-#Detectamos tamaño fila y columna:
-filas=len(Datos_de_Venta)
-columnas=len(Datos_de_Venta[0])
-
-#declaramos variables a usar
-prospecto=1
-lista_articulos=[]
-total_por_prospectos=[]
-total_articulos=[]
-#recorre cada fila en Datos_de_Venta
-for prospecto in range(PROSPECTOS,filas):
-    # Obtener las cantidades de los artículos en las posiciones 17, 19 y 21
-    lista_articulos=Datos_de_Venta[prospecto][CANTIDAD_ARTICULO_1:CANTIDAD_ARTICULO_3+1:2]
-    lista_articulos_enteros = list(map(int, lista_articulos)) #ver como implementar isdigit()
-    total_articulos_por_prospecto=sum(lista_articulos_enteros)
-    total_articulos.append(total_articulos_por_prospecto)
-    cantidad_total=sum(total_articulos)
-print(total_articulos)
-print(cantidad_total)
-
-#extraigo valor precios
-lista_precio=[]
-for prospecto in range(PROSPECTOS,filas):
-    for precios in range(PRECIO_ARTICULO_1,PRECIO_ARTICULO_3+1,2):
-        precio=Datos_de_Venta[prospecto][precios][:-1] #el -1 elimina la e de euros
+# Extraigo valor precios
+lista_precio = []
+for prospecto in iterable_prospectos:
+    for precios in range(PRECIO_ARTICULO_1, PRECIO_ARTICULO_3 + 1, 2):
+        precio = Datos_de_Venta[prospecto][precios][:-1]  # El -1 elimina la e de euros
         if precio.isdigit():
             lista_precio.append(int(precio))
+            lista_costo=lista_precio.copy()
+            for posicion_costo in range(len(lista_precio)):
+                lista_costo[posicion_costo]=lista_costo[posicion_costo]*COSTO_PORCENTAJE
         else:
             print(ERROR_NO_ES_NUMERO_PRECIO)
-print(lista_precio)
 
+
+# Recorre cada fila en Datos_de_Venta
+for prospecto in iterable_prospectos:
+    # Obtener las cantidades de los artículos en las posiciones 17, 19 y 21
+    lista_articulos = Datos_de_Venta[prospecto][CANTIDAD_ARTICULO_1:CANTIDAD_ARTICULO_3 + 1:2]
+    lista_articulos_enteros = list(map(int, lista_articulos))  # Ver como implementar isdigit()
+    i=0
+    for articulos in lista_articulos_enteros:
+        ingresos_totales+=articulos*lista_precio[i]
+        costos_totales+=articulos*lista_costo[i]
+        i+=1
+    articulos_por_prospecto = sum(lista_articulos_enteros)
+    total_articulos_por_prospecto.append(articulos_por_prospecto)
+
+# Total de artículos
+cantidad_total = sum(total_articulos_por_prospecto)
+promedio_articulos=cantidad_total/(filas)
+ganancia_total=ingresos_totales-costos_totales
+
+def buscar_articulo_mas_vendido():
+    lista_articulos_persona=[]
+    for prospecto in iterable_prospectos:
+        lista_articulos = Datos_de_Venta[prospecto][CANTIDAD_ARTICULO_1:CANTIDAD_ARTICULO_3 + 1:2]
+        lista_articulos_enteros = list(map(int, lista_articulos))  # Ver como implementar isdigit()
+        lista_articulos_persona+=lista_articulos_enteros
+    maximo=max(lista_articulos_persona)
+    posicion_articulo=lista_articulos_persona.index(maximo)
+    posicion_prospecto=posicion_articulo/CANTIDAD_ARTICULOS
+    match posicion_articulo%3:
+        case 0:#ART1
+            print("Articulo mas vendido fue el 1")
+        case 1:#ART2
+            print("Articulo mas vendido fue el 2")
+        case 2:#ART3
+            print("Articulo mas vendido fue el 3")
+    return posicion_prospecto
+buscar_articulo_mas_vendido()
+# Mostrar resultados
+
+print(f'Total de artículos vendidos: {cantidad_total}')
+print(f'Ingresos totales: {ingresos_totales:.2f} €')
+print(f'Promedio de artículos vendidos por persona: {promedio_articulos:.2f}')
+print(f'Ganancia total: {ganancia_total:.2f} €')
