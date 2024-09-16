@@ -29,6 +29,7 @@ ART_2=1
 ART_3=2
 CANTIDAD_ARTICULOS_A_LA_VENTA=3
 ERROR_NO_ES_NUMERO_PRECIO = "ERROR 1:Revisar valor del precio ingresado, no es un numero"
+ERROR_NUMERO_INCORRECTO_MENU="Opción no válida. Por favor, intenta de nuevo."
 
 
 # Declaración matriz rectangular
@@ -152,5 +153,5 @@ def main():
                 print("Saliendo del programa...")
                 break  # Sale del bucle y finaliza el programa
             case _:
-                print("Opción no válida. Por favor, intenta de nuevo.")
+                print(ERROR_NUMERO_INCORRECTO_MENU)
 main()
